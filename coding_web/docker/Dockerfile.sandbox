@@ -1,0 +1,22 @@
+# coding-web Docker Sandbox — 预装 Python + Node.js 的轻量执行环境
+FROM python:3.12-slim
+
+# 安装 Node.js 和基础工具
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安全限制
+RUN useradd -m -s /bin/bash sandbox && \
+    mkdir -p /workspace && \
+    chown sandbox:sandbox /workspace
+
+# 以非 root 用户运行
+USER sandbox
+WORKDIR /workspace
+
+# 默认入口：保持容器存活
+CMD ["tail", "-f", "/dev/null"]
